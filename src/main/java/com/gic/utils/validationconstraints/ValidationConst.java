@@ -1,4 +1,4 @@
-package com.gic.utils;
+package com.gic.utils.validationconstraints;
 
 public enum ValidationConst {
 
@@ -6,7 +6,10 @@ public enum ValidationConst {
     INSUFFICIENT_COORDINATES("Insufficient coordinates"),
     INVALID_DIRECTION("Invalid direction"),
     INVALID_COMMAND("Invalid Command"),
-    NO_MULTIPLE_CARS("Enter multiple car details");
+    NO_MULTIPLE_CARS("Enter multiple car details"),
+    INVALID_COORDINATES("Invalid start coordinates. Coordinates can not be null or empty"),
+    NULL_DIRECTION("Start direction can not be null or empty"),
+    NULL_COMMAND("Command can not be null or empty");
 
     private final String msg;
 

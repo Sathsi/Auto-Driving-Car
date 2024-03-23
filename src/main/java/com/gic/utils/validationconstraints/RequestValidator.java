@@ -1,7 +1,10 @@
-package com.gic.utils;
+package com.gic.utils.validationconstraints;
 
 import com.gic.exception.CarInputDetailValidationException;
 import com.gic.models.AutonomousCar;
+import com.gic.utils.common.Command;
+import com.gic.utils.common.Direction;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -13,7 +16,6 @@ public class RequestValidator {
 
     public void validateCarAutoDriveInputDetails(String currentCoordinates, String currentFacingDirection,
                                                  String commands) throws Exception{
-
         validateStartCoordinate(currentCoordinates);
         validateStartDirection(currentFacingDirection);
         validateCommands(commands);
@@ -25,7 +27,6 @@ public class RequestValidator {
             throw new CarInputDetailValidationException(ValidationConst.NO_MULTIPLE_CARS,
                     ValidationConst.NO_MULTIPLE_CARS.message());
         }
-
         for (AutonomousCar carInput : carInputDetailsList) {
             validateCarAutoDriveInputDetails(carInput.getCurrentCoordinates(),
                     carInput.getCurrentFacingDirection(), carInput.getCommands());
@@ -33,6 +34,10 @@ public class RequestValidator {
     }
 
     private void validateStartCoordinate (String currentCoordinates) throws Exception {
+        if(isBlank(currentCoordinates)){
+            throw new CarInputDetailValidationException(ValidationConst.INVALID_COORDINATES,
+                    ValidationConst.INVALID_COORDINATES.message());
+        }
         String[] startCoordinates = currentCoordinates.split(",");
 
         if(startCoordinates.length != 2){
@@ -53,29 +58,34 @@ public class RequestValidator {
     }
 
     private void validateStartDirection(String startDirection) throws Exception {
-        String[] directions = {"N", "E", "S", "W"};
-
-        if(!Arrays.asList(directions).contains(startDirection.toUpperCase())){
+        if(isBlank(startDirection)){
+            throw new CarInputDetailValidationException(ValidationConst.NULL_DIRECTION,
+                    ValidationConst.NULL_DIRECTION.message());
+        }
+        if(!Arrays.stream(Direction.values()).map(Enum::name).anyMatch(startDirection.toUpperCase()::equals)){
             throw new CarInputDetailValidationException(ValidationConst.INVALID_DIRECTION,
                     ValidationConst.INVALID_DIRECTION.message());
         }
     }
 
     private void validateCommands(String commands) throws Exception {
-        String[] commandsList = {"L", "R", "F"};
-        AtomicBoolean isValidCommand = new AtomicBoolean(false);
-
-        commands.chars().mapToObj(command -> String.valueOf((char) command))
-                .forEach(command -> {
-                    if(Arrays.asList(commandsList).contains(command.toUpperCase()))
-                        isValidCommand.set(true);
-                });
-
-        if(!isValidCommand.get()){
-            throw new CarInputDetailValidationException(ValidationConst.INVALID_COMMAND,
-                    ValidationConst.INVALID_COMMAND.message());
+        if(isBlank(commands)){
+            throw new CarInputDetailValidationException(ValidationConst.NULL_COMMAND,
+                    ValidationConst.NULL_COMMAND.message());
+        }
+        for (char command : commands.toCharArray()) {
+            if (!Arrays.stream(Command.values())
+                    .map(Enum::name)
+                    .anyMatch(String.valueOf(command).toUpperCase()::equals)) {
+                throw new CarInputDetailValidationException(ValidationConst.INVALID_COMMAND,
+                        ValidationConst.INVALID_COMMAND.message());
+            }
         }
 
+    }
+
+    private boolean isBlank(String text){
+        return StringUtils.isBlank(text);
     }
 
 }

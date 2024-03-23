@@ -29,19 +29,16 @@ public class AutoDriveCarController {
     @RequestMapping(value = "/endingPosition", method = RequestMethod.POST)
     public ResponseEntity<Object> getCarEndingPositionAndDirection(@Valid final @RequestBody CarInputDetails carInputDetails) throws Exception{
 
-        final CarEndingPosition carEndingPos = autoDriveCarService.getCarEndingPositionAndDirection(carInputDetails);
-        return new ResponseEntity<Object>(carEndingPos, HttpStatus.OK);
+        final CarEndingPosition carEndingPosition = autoDriveCarService.getCarEndingPositionAndDirection(carInputDetails);
+        return new ResponseEntity<Object>(carEndingPosition, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Ensure the collision happen between multiple cars in same field", notes = "Enter input details of the current car position and field size")
     @RequestMapping(value = "/collision", method = RequestMethod.POST)
     public ResponseEntity<Object> isCarCollide(@Valid final @RequestBody CarInputRequest carInputRequest) throws Exception{
 
-        final CarCollisionResponse collRes = autoDriveCarService.isCarCollisionHappen(carInputRequest);
-        if(collRes == null ){
-            return new ResponseEntity<Object>("no collision", HttpStatus.OK);
-        } else
-            return new ResponseEntity<Object>(collRes, HttpStatus.OK);
+        final String collisionResponse = autoDriveCarService.isCarCollisionHappen(carInputRequest);
+        return new ResponseEntity<Object>(collisionResponse, HttpStatus.OK);
     }
 
 }

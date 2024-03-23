@@ -9,5 +9,5 @@ public interface AutoDriveCarService {
 
     CarEndingPosition getCarEndingPositionAndDirection(CarInputDetails carInputDetails) throws Exception;
 
-    CarCollisionResponse isCarCollisionHappen(CarInputRequest carInputRequest) throws Exception;
+    String isCarCollisionHappen(CarInputRequest carInputRequest) throws Exception;
 }

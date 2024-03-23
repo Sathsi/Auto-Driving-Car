@@ -1,6 +1,6 @@
 package com.gic.exception;
 
-import com.gic.utils.ValidationConst;
+import com.gic.utils.validationconstraints.ValidationConst;
 import lombok.Getter;
 import lombok.Setter;
 

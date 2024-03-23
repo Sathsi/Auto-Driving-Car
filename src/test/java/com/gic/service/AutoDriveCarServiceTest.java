@@ -5,11 +5,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class AutoDriveCarServiceTest {
-    @Test
 
-    public void whenXZeroAndFaceWestThenIgnoreForwardCommand(){
+    @Test
+    public void whenValidCarInputDetailsThenReturnEndingPosition(){
 
     }
+
+    //validations
+    // invalid input -> exception
 
     @Test
     public void whenXEqualsToBoundaryAndFaceEastThenIgnoreForwardCommand(){
