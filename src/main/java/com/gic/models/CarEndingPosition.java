@@ -12,7 +12,7 @@ import java.util.Objects;
 public class CarEndingPosition {
     private int xCoordinate;
     private int yCoordinate;
-    private char currentDirection;
+    private char direction;
 
     // Override equals method for comparing positions
     @Override

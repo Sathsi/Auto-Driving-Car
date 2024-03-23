@@ -9,5 +9,5 @@ import java.util.List;
 @Setter
 public class CarInputRequest {
     private Dimension fieldDimension;
-    private List<CarInputDetails> carInputDetailsList;
+    private List<AutonomousCar> carInputDetailsList;
 }

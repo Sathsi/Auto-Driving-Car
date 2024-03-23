@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 public class CarCollisionResponse {
 
-    private List<String> carNames;
+    private String carNames;
     private String collisionPosition;
-    private String step;
+    private int step;
 }

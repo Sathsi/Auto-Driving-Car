@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -36,10 +35,10 @@ public class AutoDriveCarController {
 
     @ApiOperation(value = "Ensure the collision happen between multiple cars in same field", notes = "Enter input details of the current car position and field size")
     @RequestMapping(value = "/collision", method = RequestMethod.POST)
-    public ResponseEntity<Object> isCarCollide(@Valid final @RequestBody List<CarInputDetails> carInputDetails) throws Exception{
+    public ResponseEntity<Object> isCarCollide(@Valid final @RequestBody CarInputRequest carInputRequest) throws Exception{
 
-        final CarCollisionResponse collRes = autoDriveCarService.isCarCollisionHappen(carInputDetails);
-        if(collRes.getCarNames().isEmpty()){
+        final CarCollisionResponse collRes = autoDriveCarService.isCarCollisionHappen(carInputRequest);
+        if(collRes == null ){
             return new ResponseEntity<Object>("no collision", HttpStatus.OK);
         } else
             return new ResponseEntity<Object>(collRes, HttpStatus.OK);
