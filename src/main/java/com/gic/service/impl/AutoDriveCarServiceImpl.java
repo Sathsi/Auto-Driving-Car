@@ -6,7 +6,9 @@ import com.gic.models.CarEndingPosition;
 import com.gic.models.CarInputRequest;
 import com.gic.models.AutonomousCar;
 import com.gic.service.AutoDriveCarService;
-import com.gic.utils.RequestValidator;
+import com.gic.utils.common.Command;
+import com.gic.utils.common.Direction;
+import com.gic.utils.validationconstraints.RequestValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -40,27 +42,21 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
     }
 
     @Override
-    public CarCollisionResponse isCarCollisionHappen(CarInputRequest carInputRequest) throws Exception {
+    public String isCarCollisionHappen(CarInputRequest carInputRequest) throws Exception {
 
         requestValidator.validateCarAutoDriveInputDetails(carInputRequest.getCarInputDetailsList());
-
-        //boolean isCollisionDetected = false;
 
         CarCollisionResponse carCollisionResponse = null;
 
         //Find the maximum command length among all cars. Max length is consider as max driving time
-        int drivingTime = 0;
-        for (AutonomousCar car : carInputRequest.getCarInputDetailsList()) {
-            String commands = car.getCommands();
-            int commandLength = commands.length();
-            if (commandLength > drivingTime) {
-                drivingTime = commandLength;
-            }
-        }
+        int drivingTime = carInputRequest.getCarInputDetailsList().stream()
+                .mapToInt(car -> car.getCommands().length())
+                .max()
+                .orElse(0);
 
+        //As a improvement this can be generated using factory design pattern
         AutonomousCar carOne = new AutonomousCar();
-        AutonomousCar carTwo =  new AutonomousCar();
-
+        AutonomousCar carTwo = new AutonomousCar();
 
         if (carInputRequest.getCarInputDetailsList().size() >= 2) {
             carOne = carInputRequest.getCarInputDetailsList().get(0);
@@ -70,36 +66,58 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
         Map<String, Integer> startCoordinatesCar1 = getCarCoordinate(carOne.getCurrentCoordinates().split(","));
         Map<String, Integer> startCoordinatesCar2 = getCarCoordinate(carTwo.getCurrentCoordinates().split(","));
 
-        CarEndingPosition carOnePos =  CarEndingPosition.builder().xCoordinate(startCoordinatesCar1.get("x"))
-                .yCoordinate(startCoordinatesCar1.get("y")).direction(carOne.getCurrentFacingDirection().charAt(0)).build();
-
-        CarEndingPosition carTwoPos = CarEndingPosition.builder().xCoordinate(startCoordinatesCar2.get("x"))
-                .yCoordinate(startCoordinatesCar2.get("y")).direction(carTwo.getCurrentFacingDirection().charAt(0)).build();
+        CarEndingPosition carOnePosition = getCarPosition(carOne, startCoordinatesCar1);
+        CarEndingPosition carTwoPosition = getCarPosition(carTwo, startCoordinatesCar2);
 
         // Check for collision with other cars
         for(int i=0; i < drivingTime; i++){
-            carOnePos = calculateCarEndingPosition(carInputRequest.getFieldDimension().getWidth()
-                    ,carInputRequest.getFieldDimension().getHeight(),carOnePos.getXCoordinate(),carOnePos.getYCoordinate()
-                    , String.valueOf(carOnePos.getDirection()), String.valueOf(carOne.getCommands().toCharArray()[i]));
+            carOnePosition = calculateCarEndingPosition(carInputRequest.getFieldDimension().getWidth()
+                    ,carInputRequest.getFieldDimension().getHeight()
+                    ,carOnePosition.getX()
+                    ,carOnePosition.getY()
+                    ,String.valueOf(carOnePosition.getDirection())
+                    ,String.valueOf(carOne.getCommands().toCharArray()[i]));
 
-            carTwoPos = calculateCarEndingPosition(carInputRequest.getFieldDimension().getWidth()
-                    ,carInputRequest.getFieldDimension().getHeight(),carTwoPos.getXCoordinate(),carTwoPos.getYCoordinate()
-                    , String.valueOf(carTwoPos.getDirection()), String.valueOf(carTwo.getCommands().toCharArray()[i]));
+            carTwoPosition = calculateCarEndingPosition(carInputRequest.getFieldDimension().getWidth()
+                    ,carInputRequest.getFieldDimension().getHeight()
+                    ,carTwoPosition.getX()
+                    ,carTwoPosition.getY()
+                    ,String.valueOf(carTwoPosition.getDirection())
+                    ,String.valueOf(carTwo.getCommands().toCharArray()[i]));
 
-            if(carOnePos.getXCoordinate() == carTwoPos.getXCoordinate() &&
-                    carOnePos.getYCoordinate() == carTwoPos.getYCoordinate()){
+            if(carOnePosition.getX() == carTwoPosition.getX() &&
+                    carOnePosition.getY() == carTwoPosition.getY()){
                 carCollisionResponse = CarCollisionResponse.builder()
                         .carNames(carOne.getName() + " " + carTwo.getName())
-                        .collisionPosition(carOnePos.getXCoordinate() + " " + carOnePos.getYCoordinate())
+                        .collisionPosition(carOnePosition.getX() + " " + carOnePosition.getY())
                         .step(i+1)
                         .build();
+                //log got result
                 break;
             }
         }
-        
-        return carCollisionResponse;
+        return getCollisionResponse(carCollisionResponse);
+
     }
 
+    private CarEndingPosition getCarPosition(AutonomousCar car, Map<String, Integer> startCoordinatesCar){
+        return CarEndingPosition.builder().x(startCoordinatesCar.get("x"))
+                .y(startCoordinatesCar.get("y")).direction(car.getCurrentFacingDirection().charAt(0)).build();
+    }
+
+    //Generate the final result from the operation
+    private String getCollisionResponse(CarCollisionResponse carCollisionResponse){
+        String result = "No Collision";
+        if(carCollisionResponse != null){
+            result = carCollisionResponse.getCarNames() + "\n"
+                    + carCollisionResponse.getCollisionPosition() + "\n"
+                    + carCollisionResponse.getStep();
+        }
+        return result;
+
+    }
+
+    //Calculate the car ending position
     private CarEndingPosition calculateCarEndingPosition(int width, int height,
                                                          int startXCoord, int startYCoord,
                                                          String startDirection, String commands){
@@ -110,13 +128,13 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
         AtomicInteger facingDirectionIndex = new AtomicInteger(getIndex(startDirection.toUpperCase().charAt(0)));
 
         commands.chars().forEach(command -> {
-            if(Character.toUpperCase(command) == 'L'){
+            if(Character.toUpperCase(command) == Command.L.name().charAt(0)){
                 facingDirectionIndex.set((facingDirectionIndex.get() + 3) % 4);
 
-            } else if(Character.toUpperCase(command) == 'R'){
+            } else if(Character.toUpperCase(command) == Command.R.name().charAt(0)){
                 facingDirectionIndex.set((facingDirectionIndex.get() + 1) % 4);
 
-            } else if(Character.toUpperCase(command) == 'F') {
+            } else if(Character.toUpperCase(command) == Command.F.name().charAt(0)) {
                 int newXCoordinate = x.get() + xCoord[facingDirectionIndex.get()];
                 int newYCoordinate = y.get() + yCoord[facingDirectionIndex.get()];
 
@@ -131,8 +149,8 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
         });
 
         CarEndingPosition carEndingPosition = CarEndingPosition.builder()
-                .xCoordinate(x.get())
-                .yCoordinate(y.get())
+                .x(x.get())
+                .y(y.get())
                 .direction(getDirection(facingDirectionIndex.get()))
                 .build();
 
