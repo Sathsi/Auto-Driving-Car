@@ -7,7 +7,6 @@ import com.gic.models.CarInputRequest;
 import com.gic.models.AutonomousCar;
 import com.gic.service.AutoDriveCarService;
 import com.gic.utils.common.Command;
-import com.gic.utils.common.Direction;
 import com.gic.utils.validationconstraints.RequestValidator;
 import org.springframework.stereotype.Service;
 
@@ -109,9 +108,13 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
     private String getCollisionResponse(CarCollisionResponse carCollisionResponse){
         String result = "No Collision";
         if(carCollisionResponse != null){
-            result = carCollisionResponse.getCarNames() + "\n"
-                    + carCollisionResponse.getCollisionPosition() + "\n"
-                    + carCollisionResponse.getStep();
+            StringBuilder stringBuilder = new StringBuilder();
+            result = stringBuilder.append(carCollisionResponse.getCarNames())
+                    .append("\n")
+                    .append(carCollisionResponse.getCollisionPosition())
+                    .append("\n")
+                    .append(carCollisionResponse.getStep()).toString();
+
         }
         return result;
 

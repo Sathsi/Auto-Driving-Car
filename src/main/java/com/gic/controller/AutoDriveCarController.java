@@ -34,7 +34,7 @@ public class AutoDriveCarController {
     }
 
     @ApiOperation(value = "Ensure the collision happen between multiple cars in same field", notes = "Enter input details of the current car position and field size")
-    @RequestMapping(value = "/collision", method = RequestMethod.POST)
+    @RequestMapping(value = "/checkCollision", method = RequestMethod.POST)
     public ResponseEntity<Object> isCarCollide(@Valid final @RequestBody CarInputRequest carInputRequest) throws Exception{
 
         final String collisionResponse = autoDriveCarService.isCarCollisionHappen(carInputRequest);
