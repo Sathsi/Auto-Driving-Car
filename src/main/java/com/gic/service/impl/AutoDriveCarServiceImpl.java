@@ -8,6 +8,7 @@ import com.gic.service.AutoDriveCarService;
 import com.gic.utils.RequestValidator;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -20,25 +21,25 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
     }
 
     @Override
-    public CarEndingPosition getCarEndingPositionAndDirection(CarInputRequest carInputDetails) throws Exception {
+    public CarEndingPosition getCarEndingPositionAndDirection(CarInputDetails carInputDetails) throws Exception {
 
         requestValidator.validateCarAutoDriveInputDetails(carInputDetails);
 
-        String[] startCoordinates = carInputDetails.getCarInputDetailsList().get(0).getCurrentCoordinates().split(",");
+        String[] startCoordinates = carInputDetails.getCurrentCoordinates().split(",");
         int startXCoord = Integer.parseInt(startCoordinates[0]);
         int startYCoord = Integer.parseInt(startCoordinates[1]);
 
-        CarEndingPosition carEndingPosition = calculateCarEndingPosition(carInputDetails.getFieldDimension().getWidth(),
-                carInputDetails.getFieldDimension().getHeight(), startXCoord,startYCoord,
-                carInputDetails.getCarInputDetailsList().get(0).getCurrentFacingDirection(),
-                carInputDetails.getCarInputDetailsList().get(0).getCommands());
+        CarEndingPosition carEndingPosition = calculateCarEndingPosition(carInputDetails.getWidth(),
+                carInputDetails.getHeight(), startXCoord,startYCoord,
+                carInputDetails.getCurrentFacingDirection(),
+                carInputDetails.getCommands());
 
 
         return carEndingPosition;
     }
 
     @Override
-    public CarCollisionResponse isCarCollisionHappen(CarInputRequest carInputDetails) throws Exception {
+    public CarCollisionResponse isCarCollisionHappen(List<CarInputDetails> carInputDetails) throws Exception {
         return null;
     }
 

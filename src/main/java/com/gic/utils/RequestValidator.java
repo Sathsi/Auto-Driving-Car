@@ -13,13 +13,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Component
 public class RequestValidator {
 
-    public void validateCarAutoDriveInputDetails(CarInputRequest carInputDetailsRequest) throws Exception{
+    public void validateCarAutoDriveInputDetails(CarInputDetails carInputDetails) throws Exception{
 
-        for (CarInputDetails car : carInputDetailsRequest.getCarInputDetailsList()) {
-            validateStartCoordinate(car.getCurrentCoordinates());
-            validateStartDirection(car.getCurrentFacingDirection());
-            validateCommands(car.getCommands());
-        }
+        validateStartCoordinate(carInputDetails.getCurrentCoordinates());
+        validateStartDirection(carInputDetails.getCurrentFacingDirection());
+        validateCommands(carInputDetails.getCommands());
 
     }
 
