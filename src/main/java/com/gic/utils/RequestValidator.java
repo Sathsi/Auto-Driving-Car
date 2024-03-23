@@ -2,20 +2,24 @@ package com.gic.utils;
 
 import com.gic.exception.CarInputDetailValidationException;
 import com.gic.models.CarInputDetails;
+import com.gic.models.CarInputRequest;
 import com.gic.service.AutoDriveCarService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class RequestValidator {
 
-    public void validateCarAutoDriveInputDetails(CarInputDetails carInputDetailsRequest) throws Exception{
+    public void validateCarAutoDriveInputDetails(CarInputRequest carInputDetailsRequest) throws Exception{
 
-        validateStartCoordinate(carInputDetailsRequest.getCurrentCoordinates());
-        validateStartDirection(carInputDetailsRequest.getCurrentFacingDirection());
-        validateCommands(carInputDetailsRequest.getCommands());
+        for (CarInputDetails car : carInputDetailsRequest.getCarInputDetailsList()) {
+            validateStartCoordinate(car.getCurrentCoordinates());
+            validateStartDirection(car.getCurrentFacingDirection());
+            validateCommands(car.getCommands());
+        }
 
     }
 

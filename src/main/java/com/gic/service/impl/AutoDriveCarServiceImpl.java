@@ -1,7 +1,9 @@
 package com.gic.service.impl;
 
+import com.gic.models.CarCollisionResponse;
 import com.gic.models.CarInputDetails;
 import com.gic.models.CarEndingPosition;
+import com.gic.models.CarInputRequest;
 import com.gic.service.AutoDriveCarService;
 import com.gic.utils.RequestValidator;
 import org.springframework.stereotype.Service;
@@ -18,20 +20,26 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
     }
 
     @Override
-    public CarEndingPosition getCarEndingPositionAndDirection(CarInputDetails carInputDetails) throws Exception {
+    public CarEndingPosition getCarEndingPositionAndDirection(CarInputRequest carInputDetails) throws Exception {
 
         requestValidator.validateCarAutoDriveInputDetails(carInputDetails);
 
-        String[] startCoordinates = carInputDetails.getCurrentCoordinates().split(",");
+        String[] startCoordinates = carInputDetails.getCarInputDetailsList().get(0).getCurrentCoordinates().split(",");
         int startXCoord = Integer.parseInt(startCoordinates[0]);
         int startYCoord = Integer.parseInt(startCoordinates[1]);
 
-        CarEndingPosition carEndingPosition = calculateCarEndingPosition(carInputDetails.getWidth(),
-                carInputDetails.getHeight(), startXCoord,startYCoord,
-                carInputDetails.getCurrentFacingDirection(), carInputDetails.getCommands());
+        CarEndingPosition carEndingPosition = calculateCarEndingPosition(carInputDetails.getFieldDimension().getWidth(),
+                carInputDetails.getFieldDimension().getHeight(), startXCoord,startYCoord,
+                carInputDetails.getCarInputDetailsList().get(0).getCurrentFacingDirection(),
+                carInputDetails.getCarInputDetailsList().get(0).getCommands());
 
 
         return carEndingPosition;
+    }
+
+    @Override
+    public CarCollisionResponse isCarCollisionHappen(CarInputRequest carInputDetails) throws Exception {
+        return null;
     }
 
     private CarEndingPosition calculateCarEndingPosition(int width, int height,
@@ -72,7 +80,7 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
 
     }
 
-    public static int getIndex(char direction) {
+    private static int getIndex(char direction) {
         switch (direction) {
             case 'N':
                 return 0;
@@ -87,7 +95,7 @@ public class AutoDriveCarServiceImpl implements AutoDriveCarService {
         }
     }
 
-    public static char getDirection(int index) {
+    private static char getDirection(int index) {
         char[] directions = {'N', 'E', 'S', 'W'};
         return directions[index];
     }
